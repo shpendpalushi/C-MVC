@@ -1,0 +1,442 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Menaxhuesi i kerkesave</h2>
+<a class="btn btn-success mb-2" style="color:white" onclick="PopupFormAdd('@Url.Action("AddOrEdit","Request")')"><i class="fas fa-plus mr-2"></i>Shto Kërkesë</a>
+<!--Ndertohet tabela per vezhgimin e kerkesave-->
+<table id="requestTable" class="table table-striped table-bordered" style="width:100%">
+    <thead>
+        <tr>
+            <th>Nr.</th>  
+            <th>Titulli</th>
+            <th  class="to_hide">Data e marrjes</th>
+            <th class="to_hide">Data e regjistrimit</th>
+            <th>Statusi</th>
+            <th>Dokumenti</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tr>
+        <td></td>
+    </tr>
+</table>
+<link href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<script src="https://kit.fontawesome.com/2f51b7b36e.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+<link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+@section scripts{
+    <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        //Table popullohet me te dhena nga merren me kerkese get nga backend C# GetData() funksion
+        //Table kolonat e saj i ka te shprehura ne json qe nr i kolones i pergjigjet propertia targets
+        var Popup, dataTable;
+        $(document).ready(function () {
+            moment.updateLocale(moment.locale(), { invalidDate: "Mungon e dhëna" });
+            dataTable = $("#requestTable").DataTable(
+                {
+                    responsive:true,
+                    "ajax": {
+                        "url": "/Request/GetData",
+                        "type": "GET",
+                        "datatype": "json"
+                    },
+                    columnDefs: [
+                        {
+                            "targets": 0,
+                            "className":"text-right",
+                            "searchable": false,
+                            "orderable": false,
+                            "data":null,
+
+                        },
+                        {
+                            "targets": 1,
+                            "data":"RT_Title"
+                        },
+                        {
+                            "className": "to_hide text-right",
+                            "width": "12%",
+                            "data": "RT_Request_Taken_Date" ,
+                            targets: 2, render: function (RT_Request_Taken_Date) {
+                                return moment(RT_Request_Taken_Date).format('DD-MM-YYYY');
+                            }
+                        },
+
+                        {
+                            "className":"to_hide text-right",
+                            "data": "RT_Request_Registered_DateTime",
+                            "width":"12%",
+                            "targets": 3, render: function (RT_Request_Registered_DateTime) {
+                                return moment(RT_Request_Registered_DateTime).format('DD-MM-YYYY');
+                            }
+                        },
+                        {
+                            "data": "Status",
+                            "width": "12%",
+                            "targets": 4,
+
+                        },
+                        {
+                            "targets": 5,
+                            "data":"Simple_Name","render": function (RT_Document_Name) {
+                                if (RT_Document_Name!=null)
+                                    return "<a class='btn btn-link'  onclick=Download('@Url.Action("DownloadFile", "Request")/" + parseInt(RT_Document_Name.substring(0,RT_Document_Name.indexOf('/'))) + "')><i class='fas fa-download'></i>" + RT_Document_Name.substring(RT_Document_Name.indexOf('/') + 1) + "</a>";
+                                return null;
+                            }
+                        },
+                        {
+                             "className": "dt-center" ,
+                            "data": "RTID_Request", "render": function (data) {
+                                return "<div class='col-lg-12'><a data-toggle='tooltip' title='Shiko të dhënat e plota' class='mr-4 mb-1 ' onclick=PopupFormView('@Url.Action("AddOrEdit", "Request")/" + data + "')><i class='fas fa-binoculars fa-lg'></i></a><a data-toggle='tooltip' title='Bëj një ndryshim' class='mr-4 mb-1' onclick=PopupFormEdit('@Url.Action("AddOrEdit", "Request")/" + data + "')><i class='far fa-edit fa-lg'></i></a><a data-toggle='tooltip' title='Fshi rekordin nga tabela' class='mb-1 mr-4' onclick=Delete(" + data + ") style='color:red'><i class='far fa-trash-alt fa-lg'></i></a></div>";
+                            },
+                            "targets": 6,
+                            "orderable": false,
+                            "searchable": false,
+                        },
+                    ],
+
+                    "language": {
+                        "emptyTable": "Nuk ka te dhëna për momentin",
+                        "search": "Kërko",
+                        "lengthMenu": "Shfaq _MENU_ rekorde",
+                        "info": "Duke shfaqur _START_ deri _END_ të _TOTAL_ rekordeve",
+                        "paginate": {
+                            "first": "E para",
+                            "last": "Fund",
+                            "next": "Tjetra",
+                            "previous": "Para",
+                        },
+                        "infoEmpty": "Nuk ka të dhëna",
+                        "loadingRecords": "Duke ngarkuar...",
+                        "zeroRecords": "Nuk gjetëm rekorde të ngjashme",
+                        "processing": "Duke procesuar...",
+                        "infoFiltered": "(filtruar nga _MAX_ rekorde në total)"
+                    }
+                });
+            dataTable.on('order.dt search.dt', function () {
+                dataTable.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+            }).draw();
+        });
+
+        //Shfaqet table per shtim kerkese
+        function PopupFormAdd(url) {
+            localStorage.setItem("emptyDate", 1);
+            var formDiv = $('<div/>');
+            $.get(url)
+                .done(function (response) {
+                    formDiv.html(response);
+                    Popup = formDiv.dialog({
+                        autoOpen: true,
+                        resizable: false,
+                        title: 'Plotëso të dhënat e kërkesës',
+                        height: 580,
+                        width: 700,
+                        close: function () {
+                            Popup.dialog('destroy').remove();
+                            localStorage.clear();
+                        },
+                        success: function () {
+                            localStorage.clear();
+                        }
+
+
+                    });
+                });
+
+
+
+        }
+
+        //Shfaqet table per editimi kerkese
+        function PopupFormEdit(url) {
+            var formDiv = $('<div/>');
+            $.get(url)
+                .done(function (response) {
+                    formDiv.html(response);
+                    
+                    Popup = formDiv.dialog({
+                        autoOpen: true,
+                        resizable: false,
+                        title: 'Plotëso të dhënat e kërkesës',
+                        height: 580,
+                        width: 700,
+                        close: function () {
+                            Popup.dialog('destroy').remove();
+                            localStorage.clear();
+                        },
+                        success:function() {
+                            localStorage.clear();
+                            console.log(document.getElementById("RT_Request_Taken_Date"));
+                        }
+                    });
+                    var new_taken_date = changeDate("RT_Request_Taken_Date");
+                    var new_finish_date = changeDate("RT_Request_Finished_Date");
+                    document.getElementById("RT_Request_Taken_Date").value = new_taken_date;
+                    document.getElementById("RT_Request_Finished_Date").value = new_finish_date;
+                });
+            //console.log(document.getElementById("RT_Title").value)
+        }
+
+        //Shfaqet popup per te shikuar te dhenat e kerkeses
+        function PopupFormView(url) {
+            var formDiv = $('<div/>');
+            localStorage.setItem("readonly", 1);
+            $.get(url)
+                .done(function (response) {
+                    formDiv.html(response);
+                    Popup = formDiv.dialog({
+                        autoOpen: true,
+                        resizable: false,
+                        title: 'Plotëso të dhënat e kërkesës',
+                        height: 580,
+                        width: 700,
+                        close: function () {
+                            Popup.dialog('destroy').remove();
+                            localStorage.clear();
+                        },
+                        success: function () {
+                            localStorage.clear();
+                        }
+
+                    });
+                });
+        }
+
+        // Referencon ne linkun per shkarkimin e dokumentit
+        function Download(url) {
+            window.location = url;
+        }
+
+        
+
+        //Funksioni i dergimit te formes ne backend per t'u ruajtur ne db
+        function SubmitForm(form) {
+            //$.validator.unobtrusive.parse(form);
+            if (validate()) {
+                correctDate();
+                $.ajax({
+                    type: "POST",
+                    url: form.action,
+                    data: new FormData(form),
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.success) {
+                            Popup.dialog('close');
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message, {
+                                globalPosition: "top center",
+                                className: "success"
+                            })
+
+                        }
+                    },
+                    error: function (data) {
+                        alert("Post not successful")
+                    }
+                });
+            }
+            return false;
+        }
+        //Validohen te gjitha fushat ne front-end sipas kerkesave te produktit
+        function validate() {
+            var validateTitle = ValidateTitle();
+            var validateDate = ValidateDate();
+            var validateStatus = ValidateStatus();
+            var validateFinished = ValidateFinished();
+            var validateComparison = ValidateComparison();
+            return validateTitle && validateDate && validateStatus && validateFinished && validateComparison;
+        }
+
+
+        function ValidateTitle() {
+            if (document.getElementById("RT_Title").value == null || document.getElementById("RT_Title").value == "") {
+                document.getElementById("title_validation").innerHTML = "Kjo fushë duhet plotësuar";
+                document.getElementById("title_validation").setAttribute("style", "color:red; font-size:12px");
+                document.getElementById("RT_Title").setAttribute("style", " border: 1px solid #e80c4d");
+                return false;
+            }
+            return true;
+        }
+
+        function ValidateDate() {
+            if (document.getElementById("RT_Request_Taken_Date").value == null || document.getElementById("RT_Request_Taken_Date").value == "") {
+                document.getElementById("date_validation").innerHTML = "Kjo fushë duhet plotësuar";
+                document.getElementById("date_validation").setAttribute("style", "color:red; font-size:12px");
+                document.getElementById("RT_Request_Taken_Date").setAttribute("style", " border: 1px solid #e80c4d");
+                return false;
+            }
+            return true;
+        }
+
+
+        //Krahasohet nese data e marrjes eshte me e vogel se data e perfundimit
+        function ValidateComparison() {
+            console.log(document.getElementById("RT_Request_Finished_Date").value);
+            if (document.getElementById("RT_Request_Finished_Date").value != "" && document.getElementById("RT_Request_Finished_Date").value != null) {
+                var date = document.getElementById("RT_Request_Taken_Date").value;
+                var new_date = date.substring(6) + date.charAt(2) + date.substring(3, 5) + date.charAt(2) + date.substring(0, 2);
+                var finish_date = document.getElementById("RT_Request_Finished_Date").value;
+                var new_finish_date = finish_date.substring(6) + finish_date.charAt(2) + finish_date.substring(3, 5) + finish_date.charAt(2) + finish_date.substring(0, 2);
+                console.log(new_date.localeCompare(new_finish_date));
+                if (new_date.localeCompare(new_finish_date)>0) {
+                    document.getElementById("finished_validation").innerHTML = "Data e fillimit më e madhe se e mbarimit";
+                    document.getElementById("finished_validation").setAttribute("style", "color:red; font-size:12px");
+                    document.getElementById("RT_Request_Finished_Date").setAttribute("style", " border: 1px solid #e80c4d");
+                    document.getElementById("date_validation").innerHTML = "Data e fillimit më e madhe se e mbarimit";
+                    document.getElementById("date_validation").setAttribute("style", "color:red; font-size:12px");
+                    document.getElementById("RT_Request_Taken_Date").setAttribute("style", " border: 1px solid #e80c4d");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+        function ValidateStatus() {
+            if (document.getElementById("RT_Status_ID").value == null || document.getElementById("RT_Request_Taken_Date").value == "") {
+                document.getElementById("status_validation").innerHTML = "Kjo fushë duhet plotësuar";
+                document.getElementById("status_validation").setAttribute("style", "color:red; font-size:12px");
+                document.getElementById("RT_Status_ID").setAttribute("style", " border: 1px solid #e80c4d");
+                return false;
+            }
+            return true;
+        }
+       
+
+    function ValidateFinished() {
+
+        if (document.getElementById("RT_Status_ID").value == 3 && (document.getElementById("RT_Request_Finished_Date").value == "" || document.getElementById("RT_Request_Finished_Date").value == null)) {
+            document.getElementById("finished_validation").innerHTML = "Kjo fushë duhet plotësuar se kërkesa ka përfunduar";
+            document.getElementById("finished_validation").setAttribute("style", "color:red; font-size:12px");
+            document.getElementById("RT_Request_Finished_Date").setAttribute("style", " border: 1px solid #e80c4d");
+            return false;
+        } else if (document.getElementById("RT_Status_ID").value != 3 && (document.getElementById("RT_Request_Finished_Date").value != "")) {
+            document.getElementById("finished_validation").innerHTML = "Kujdes, kërkesa nuk ka përfunduar";
+            document.getElementById("finished_validation").setAttribute("style", "color:red; font-size:12px");
+            document.getElementById("RT_Request_Finished_Date").setAttribute("style", " border: 1px solid #e80c4d");
+            return false;
+        }
+        return true;
+    }
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        function clearDate() {
+            if (localStorage.getItem("readonly") == null) {
+                document.getElementById("RT_Request_Taken_Date").value = "";
+            }
+        }
+
+        function correctDate() {
+            var date = document.getElementById("RT_Request_Taken_Date").value;
+            var new_date = date.substring(6) + date.charAt(2) + date.substring(3, 5) + date.charAt(2) + date.substring(0, 2);
+            document.getElementById("RT_Request_Taken_Date").value = new_date;
+            if (document.getElementById("RT_Request_Finished_Date").value != "" || document.getElementById("RT_Request_Finished_Date").value != null) {
+                var finish_date = document.getElementById("RT_Request_Finished_Date").value;
+                var new_finish_date = finish_date.substring(6) + finish_date.charAt(2) + finish_date.substring(3, 5) + finish_date.charAt(2) + finish_date.substring(0, 2);
+                document.getElementById("RT_Request_Finished_Date").value = new_finish_date;
+            }
+        }
+
+        function checkForDate() {
+            console.log("Called")
+            var finish_date = document.getElementById("RT_Request_Finished_Date");
+            var select = document.getElementById("RT_Status_ID");
+            if ((select.options[select.selectedIndex].value == 1) || (select.options[select.selectedIndex].value == 2)) {
+                finish_date.value = "";
+                 finish_date.disabled= true;
+            } else {
+                finish_date.disabled = false;
+            }
+        }
+
+
+        //Ne rast fshirje Duhet te shfaqet popup per konfirmim. Ky eshte konfirmimi
+        function Confirm(title, msg, $true, $false, id) {
+            var $content = "<div class='dialog-ovelay'>" +
+                "<div class='dialog'><header>" +
+                " <h3> " + title + " </h3> " +
+                "<i class='fa fa-close'></i>" +
+                "</header>" +
+                "<div class='dialog-msg'>" +
+                " <p> " + msg + " </p> " +
+                "</div>" +
+                "<footer>" +
+                "<div class='controls text-right' >" +
+                " <button class='button button-danger doAction'>" + $true + "</button> " +
+                " <button class='button button-default cancelAction'>" + $false + "</button> " +
+                "</div>" +
+                "</footer>" +
+                "</div>" +
+                "</div>";
+            $('body').prepend($content);
+            $('.doAction').click(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete", "Request")/' + id,
+                    success: function (data) {
+                        if (data.success) {
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message, {
+                                globalPosition: "top center",
+                                className: "info"
+                            });
+                        }
+                    }
+                })
+
+                $(this).parents('.dialog-ovelay').fadeOut(500, function () {
+                    $(this).remove();
+                });
+            });
+            $('.cancelAction, .fa-close').click(function () {
+                $(this).parents('.dialog-ovelay').fadeOut(500, function () {
+                    $(this).remove();
+                });
+            });
+
+        }
+        function Delete(id) {
+            Confirm('Fshi kërkesë', 'A jeni të sigurt se doni ta fshini këtë rekord? Veprimi është i pakthyeshëm.', 'Po', 'Jo', id);
+        };
+
+        //Kur data vjen nga backend vjen ne format jo te deshirueshem. Ketu kthehet ne formatin e deshiruar
+        function changeDate(id) {
+            var date = document.getElementById(id).value;
+            var new_date;
+            if (date != "") {
+
+                if (date.charAt(1) == "/") {
+                    if (date.charAt(3) == "/") {
+                        new_date = "0" + date.charAt(2) + "-" + "0" + date.charAt(0) + "-" + date.substring(4, 8);
+                    } else if (date.charAt(4) == "/") {
+                        new_date = date.substring(2, 4) + "-" + "0" + date.charAt(0) + "-" + date.substring(5, 9);
+                    }
+                } else if (date.charAt(2) == "/") {
+                    if (date.charAt(4) == "/") {
+                        new_date = "0" + date.charAt(3) + "-" + date.substring(0, 2) + "-" + date.substring(5, 9);
+                    } else if (date.charAt(5) == "/") {
+                        new_date = date.substring(3, 5) + "-" + date.substring(0, 2) + "-" + date.substring(6, 10);
+                    }
+                }
+                return new_date;
+            }
+            return "";
+        }
+    </script>
+    <script src="~/Scripts/moment.js"></script>
+}

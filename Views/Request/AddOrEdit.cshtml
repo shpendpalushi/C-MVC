@@ -1,0 +1,242 @@
+﻿
+@model CrudMvc.Models.RM_Request
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+    <!--Forma e shtimit -->
+@using (Html.BeginForm("AddOrEdit", "Request", FormMethod.Post, new { onsubmit = "return SubmitForm(this)", @enctype = "multipart/form-data" }))
+{
+    @Html.HiddenFor(model => model.RTID_Request)
+
+    <div class="row">
+        <div class="form-group col-lg-6">
+            @Html.Label("Titulli i kërkesës", new { @class = "control-label", })<span style="color:red">*</span>
+            @Html.EditorFor(model => model.RT_Title, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+            <p id="title_validation"></p>
+        </div>
+        <div class="form-group col-lg-6">
+            @Html.Label("Data e marrjes së kërkesës", new { @class = "control-label" })<span style="color: red">*</span>
+            @Html.EditorFor(model => model.RT_Request_Taken_Date, new { htmlAttributes = new { @class = "form-control datepicker text-right", @placeholder = "dd-mm-yyyy", @autocomplete = "off" } })
+            <p id="date_validation"></p>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            @Html.Label("Përshkrimi i kërkesës", new { @class = "control-label" })
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-lg-12" style="padding-right:45px">
+            @Html.TextAreaFor(model => model.RT_Request_Description, 6, 1000, new { @class = "form-control col-lg-12", rows = "3" })
+        </div>
+
+    </div>
+
+
+
+
+    <div class="row">
+        <div class="form-group col-lg-6">
+            @Html.Label("Statusi i kërkesës", new { @class = "control-label" })<span style="color:red">*</span>
+            @Html.DropDownListFor(model => model.RT_Status_ID, ViewBag.status as SelectList, "[ -- Të lutem zgjidh --]", new { onchange = "checkForDate()", @class = "form-control" })
+            <p id="status_validation"></p>
+
+        </div>
+
+        <div class="form-group col-lg-6">
+            @Html.Label("Data e përfundimit", new { @class = "control-label" })
+            @Html.EditorFor(model => model.RT_Request_Finished_Date, new { htmlAttributes = new { @class = "form-control datepicker text-right", @placeholder = "dd-mm-yyyy", @autocomplete = "off" } })
+            <p id="finished_validation"></p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-lg-6">
+            @Html.Label("Ngarko dokumentin", new { @class = "control-label" })
+            @Html.TextBoxFor(model => model.File, new { @class = "btn btn-primary btn-sm float-left", type = "file", @accept = ".pdf,.docx" })
+        </div>
+    </div>
+
+
+    <div class="form-group text-center">
+        <input type="submit" value="Ruaj" class="btn btn-success" id="save" />
+        <input type="reset" value="Pastro" class="btn btn-light" id="clear" />
+    </div>
+
+
+}
+
+
+<script>
+
+    //funksioni shfaqjes se kalendarit ne shqip per daten e marrjes se kerkeses
+    $(document).ready(function () {
+        if (localStorage.getItem("readonly") != 1) {
+            correctFormatDate();
+            $(".RT_Request_Taken_Date").on("change", function () {
+                var fromdate = $(this).val();
+                console.log(fromdate)
+                $("#RT_Request_Taken_Date").val(fromdate);
+            });
+        }
+
+    });
+
+    //funksioni shfaqjes se kalendarit ne shqip per daten e perfundimit te kerkeses
+    $(document).ready(function () {
+        if (localStorage.getItem("readonly") != 1) {
+            correctFormatDate();
+            $(".RT_Request_Finished_Date").on("change", function () {
+                var fromdate = $(this).val();
+                console.log(fromdate)
+                $("#RT_Request_Finished_Date").val(fromdate);
+            });
+        }
+
+    });
+
+    //funksioni per modifikimin e te dhenave te kalendarit per gjuhen shqipe
+    function correctFormatDate() {
+        $.fn.datepicker.dates['sq'] = {
+            days: ["E Diel", "E Hënë", "E Martë", "E Mërkurë", "E Enjte", "E Premte", "E Shtune"],
+            daysShort: ["Di", "Hë", "Ma", "Më", "En", "Pr", "Sh"],
+            daysMin: ["Di", "Hë", "Ma", "Më", "En", "Pr", "Sh"],
+            months: [
+                "Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor",
+                "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor"
+            ],
+            monthsShort: [
+                "Jan", "Shk", "Mar", "Pri", "Maj", "Qer",
+                "Kor", "Gus", "Sht", "Tet", "Nën", "Dhj"
+            ],
+            meridiem: '',
+            today: "Sot",
+            clear: "Pastro",
+            format: "dd-mm-yyyy",
+            weekStart: 0
+        };
+
+        var language = "sq";
+        var options = {
+            orientation: 'top right',
+            format: 'dd-mm-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+
+            language: language
+
+        };
+
+        $(".datepicker").datepicker(options);
+        $('input[name="RT_Request_Taken_Date"]').datepicker({
+            "locale": {
+                dateformat: "dd-mm-yy",
+                "separator": " - ",
+                "applyLabel": "Zgjidh",
+                "cancelLabel": "Pastro",
+                "fromLabel": "Nga",
+                "toLabel": "Deri",
+                "customRangeLabel": "Custom",
+                "weekLabel": "W",
+                "daysOfWeek": [
+                    "Di",
+                    "Hë",
+                    "Ma",
+                    "Më",
+                    "En",
+                    "Pr",
+                    "Sh"
+                ],
+                "monthNames": [
+                    "Janar",
+                    "Shkurt",
+                    "Mars",
+                    "Prill",
+                    "Maj",
+                    "Qershor",
+                    "Korrik",
+                    "Gusht",
+                    "Shtator",
+                    "Tetor",
+                    "Nëntor",
+                    "Dhjetor"
+                ],
+                "firstDay": 1
+            },
+
+        });
+    }
+
+
+
+    //Ne rastin e shikimit te detajeve nuk lejohet modifikimi
+    //Ketu therritet funksioni makeReadonly() qe i ben fushat readonly
+    function checkForReadOnly() {
+        if (localStorage.getItem("readonly") != null) {
+            makeReadonly();
+        }
+    }
+
+    //data e marrjes se kerkeses eshte obligative, keshtu qe backend i jep nje vlere default
+    //qe ne nuk na duhet pasi sigurohemi ne front-end qe mos te mbetet null
+    //ketu hiqet vlera default
+    function emptyDate() {
+        if (localStorage.getItem("emptyDate") != null) {
+            document.getElementById("RT_Request_Taken_Date").value = "";
+        }
+    }
+    checkForReadOnly();
+
+    //Te gjitha fushat behen readonly kur kemi klikuar shiko te dhenat e plota
+    function makeReadonly() {
+        document.getElementById("save").setAttribute("style", "display:none");
+        document.getElementById("clear").setAttribute("style", "display:none");
+        document.getElementById("RT_Title").setAttribute("readonly", true);
+        document.getElementById("RT_Request_Taken_Date").setAttribute("readonly", true);
+        document.getElementById("RT_Request_Description").setAttribute("readonly", true);
+        var select = document.getElementById("RT_Status_ID");
+        select.setAttribute("readonly", true);
+        for (var i = 0; i < select.length; i++)
+            select.options[i].disabled = true;
+
+
+        document.getElementById("RT_Request_Finished_Date").setAttribute("readonly", true);
+    }
+    emptyDate();
+
+
+    //Nese statusi nuk eshte: i perfunduar duhet qe data e perfundimit te jete disabled
+    function modifyClear() {
+        var select = document.getElementById("RT_Status_ID");
+        if (localStorage.getItem("emptyDate") == null && localStorage.getItem("readonly") == null)
+            document.getElementById("clear").setAttribute("style", "display:none");
+    }
+    modifyClear();
+
+
+    //Funksionet eleminojne shenjat e error kur klikohet per te shkruajtur mbi to
+    document.getElementById("RT_Title").onclick = function () {
+        document.getElementById("title_validation").innerHTML = "";
+        document.getElementById("RT_Title").setAttribute("style", " border: none");
+    }
+    document.getElementById("RT_Request_Taken_Date").onclick = function () {
+        document.getElementById("date_validation").innerHTML = "";
+        document.getElementById("RT_Request_Taken_Date").setAttribute("style", " border: none");
+    }
+    document.getElementById("RT_Status_ID").onclick = function () {
+        document.getElementById("status_validation").innerHTML = "";
+        document.getElementById("RT_Status_ID").setAttribute("style", " border: none");
+    }
+    document.getElementById("RT_Request_Finished_Date").onclick = function () {
+        document.getElementById("finished_validation").innerHTML = "";
+        document.getElementById("RT_Request_Finished_Date").setAttribute("style", " border: none");
+    }
+
+
+</script>
+

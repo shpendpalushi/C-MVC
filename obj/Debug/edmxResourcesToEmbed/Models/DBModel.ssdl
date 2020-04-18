@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="DBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="RM_Request">
+    <Key>
+      <PropertyRef Name="RTID_Request" />
+    </Key>
+    <Property Name="RTID_Request" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="RT_Request_Description" Type="nvarchar" MaxLength="512" />
+    <Property Name="RT_Request_Registered_DateTime" Type="datetime" />
+    <Property Name="RT_Request_Finished_Date" Type="date" />
+    <Property Name="RT_Status_ID" Type="int" Nullable="false" />
+    <Property Name="RT_Document_Name" Type="nvarchar" MaxLength="512" />
+    <Property Name="RT_Document_Content" Type="nvarchar(max)" />
+    <Property Name="RT_Request_Taken_Date" Type="date" Nullable="false" />
+    <Property Name="RT_Title" Type="nvarchar" MaxLength="255" />
+  </EntityType>
+  <EntityType Name="RM_Status_Table">
+    <Key>
+      <PropertyRef Name="ST_ID_Status" />
+    </Key>
+    <Property Name="ST_ID_Status" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ST_Status_Name" Type="nvarchar" MaxLength="100" Nullable="false" />
+    <Property Name="ST_Status_Description" Type="nvarchar" MaxLength="512" />
+  </EntityType>
+  <EntityType Name="sysdiagrams">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="principal_id" Type="int" Nullable="false" />
+    <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="version" Type="int" />
+    <Property Name="definition" Type="varbinary(max)" />
+  </EntityType>
+  <Association Name="FK_Request_Status_Table">
+    <End Role="RM_Status_Table" Type="Self.RM_Status_Table" Multiplicity="1" />
+    <End Role="RM_Request" Type="Self.RM_Request" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="RM_Status_Table">
+        <PropertyRef Name="ST_ID_Status" />
+      </Principal>
+      <Dependent Role="RM_Request">
+        <PropertyRef Name="RT_Status_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="DBModelStoreContainer">
+    <EntitySet Name="RM_Request" EntityType="Self.RM_Request" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="RM_Status_Table" EntityType="Self.RM_Status_Table" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_Request_Status_Table" Association="Self.FK_Request_Status_Table">
+      <End Role="RM_Status_Table" EntitySet="RM_Status_Table" />
+      <End Role="RM_Request" EntitySet="RM_Request" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

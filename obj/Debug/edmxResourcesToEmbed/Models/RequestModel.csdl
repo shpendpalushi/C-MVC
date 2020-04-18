@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="Request_ManagerModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Request">
+    <Key>
+      <PropertyRef Name="RTID_Request" />
+    </Key>
+    <Property Name="RTID_Request" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="RT_Request_Description" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+    <Property Name="RT_Request_StartDateTime" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="RT_Request_FinishDateTime" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="RT_Status_ID" Type="Int32" Nullable="false" />
+    <Property Name="RT_Document_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="RT_Document_Content" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="RT_Request_Taken_DateTime" Type="DateTime" Nullable="false" Precision="0" />
+    <Property Name="RT_Title" Type="String" Nullable="false" MaxLength="512" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityContainer Name="Request_ManagerEntities1" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Requests" EntityType="Self.Request" />
+  </EntityContainer>
+</Schema>

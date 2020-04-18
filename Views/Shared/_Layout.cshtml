@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        var timerStart = Date.now();
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+</head>
+<body>
+
+
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <div class="row">
+                <p class="col">&copy; @DateTime.Now.Year - Menaxhuesi i kerkesave </p>
+                <p class="col float-left" id="time_interval" align="right"></p>
+            </div>
+
+
+
+        </footer>
+    </div>
+    <!--Varesite scriptet e nevojshme-->
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/Scripts/notify.min.js"></script>
+    
+        <script src="~/Scripts/bootstrap-datepicker.js"></script>
+    <link href="~/Content/bootstrap-datepicker3.css" rel="stylesheet" />
+   
+
+    <script src="https://kit.fontawesome.com/2f51b7b36e.js" crossorigin="anonymous"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+<script>
+
+    //funksion qe llogarit kohen e loadimit te fileve
+    $(document).ready(function () {
+        var time = Date.now() - timerStart;
+        document.getElementById("time_interval").innerHTML = time/1000 + "s - Koha e ngarkimit";
+        if (time <= 300)
+            document.getElementById("time_interval").setAttribute("style", "color:green");
+        else if (time > 300 && time < 600)
+            document.getElementById("time_interval").setAttribute("style", "color:orange");
+        else
+            document.getElementById("time_interval").setAttribute("style", "color:red");
+    });
+</script>

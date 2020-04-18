@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="Request_ManagerModelStoreContainer" CdmEntityContainer="Request_ManagerEntities1">
+    <EntitySetMapping Name="Requests">
+      <EntityTypeMapping TypeName="Request_ManagerModel.Request">
+        <MappingFragment StoreEntitySet="Request">
+          <ScalarProperty Name="RT_Title" ColumnName="RT_Title" />
+          <ScalarProperty Name="RT_Request_Taken_DateTime" ColumnName="RT_Request_Taken_DateTime" />
+          <ScalarProperty Name="RTID_Request" ColumnName="RTID_Request" />
+          <ScalarProperty Name="RT_Request_Description" ColumnName="RT_Request_Description" />
+          <ScalarProperty Name="RT_Request_StartDateTime" ColumnName="RT_Request_StartDateTime" />
+          <ScalarProperty Name="RT_Request_FinishDateTime" ColumnName="RT_Request_FinishDateTime" />
+          <ScalarProperty Name="RT_Status_ID" ColumnName="RT_Status_ID" />
+          <ScalarProperty Name="RT_Document_Name" ColumnName="RT_Document_Name" />
+          <ScalarProperty Name="RT_Document_Content" ColumnName="RT_Document_Content" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

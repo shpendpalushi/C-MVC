@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="DBModelStoreContainer" CdmEntityContainer="Request_ManagerEntities4">
+    <EntitySetMapping Name="RM_Request">
+      <EntityTypeMapping TypeName="DBModel.RM_Request">
+        <MappingFragment StoreEntitySet="RM_Request">
+          <ScalarProperty Name="RTID_Request" ColumnName="RTID_Request" />
+          <ScalarProperty Name="RT_Request_Description" ColumnName="RT_Request_Description" />
+          <ScalarProperty Name="RT_Request_Registered_DateTime" ColumnName="RT_Request_Registered_DateTime" />
+          <ScalarProperty Name="RT_Request_Finished_Date" ColumnName="RT_Request_Finished_Date" />
+          <ScalarProperty Name="RT_Status_ID" ColumnName="RT_Status_ID" />
+          <ScalarProperty Name="RT_Document_Name" ColumnName="RT_Document_Name" />
+          <ScalarProperty Name="RT_Document_Content" ColumnName="RT_Document_Content" />
+          <ScalarProperty Name="RT_Request_Taken_Date" ColumnName="RT_Request_Taken_Date" />
+          <ScalarProperty Name="RT_Title" ColumnName="RT_Title" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="RM_Status_Table">
+      <EntityTypeMapping TypeName="DBModel.RM_Status_Table">
+        <MappingFragment StoreEntitySet="RM_Status_Table">
+          <ScalarProperty Name="ST_ID_Status" ColumnName="ST_ID_Status" />
+          <ScalarProperty Name="ST_Status_Name" ColumnName="ST_Status_Name" />
+          <ScalarProperty Name="ST_Status_Description" ColumnName="ST_Status_Description" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="sysdiagrams">
+      <EntityTypeMapping TypeName="DBModel.sysdiagram">
+        <MappingFragment StoreEntitySet="sysdiagrams">
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+          <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+          <ScalarProperty Name="version" ColumnName="version" />
+          <ScalarProperty Name="definition" ColumnName="definition" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>
